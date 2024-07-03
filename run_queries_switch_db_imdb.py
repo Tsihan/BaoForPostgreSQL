@@ -40,7 +40,7 @@ def get_all_queries_from_directory(directory):
 
 
 
-query_directory = sys.argv[1]
+query_directory = "/mydata/BaoForPostgreSQL/imdb_assorted_3"
 
 queries_assorted = get_all_queries_from_directory(query_directory)
 
@@ -68,6 +68,6 @@ for i in range(100):
         
         os.system("cd bao_server && python3 baoctl.py --retrain")
         os.system("sync")
-        for fp, q in chosen_queries:
+        for fp, q in queries_assorted:
             q_time = run_query(q,chosen_connect_string ,bao_reward=USE_BAO, bao_select=USE_BAO)
             print("BAO", time(), fp, q_time, flush=True)

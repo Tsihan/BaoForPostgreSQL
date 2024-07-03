@@ -39,7 +39,7 @@ def get_all_queries_from_directory(directory):
     return queries
 
 # Assuming the directory containing SQL files is provided as the first argument
-query_directory = sys.argv[1]
+query_directory = "/mydata/BaoForPostgreSQL/tpch_assorted"
 queries = get_all_queries_from_directory(query_directory)
 
 print("Read", len(queries), "queries.")

@@ -43,7 +43,7 @@ if len(sys.argv) != 3:
     print("Usage: python script.py <query_directory_1> <query_directory_2>", file=sys.stderr)
     sys.exit(1)
 
-query_directory_1, query_directory_2 = sys.argv[1], sys.argv[2]
+query_directory_1, query_directory_2 = "/mydata/BaoForPostgreSQL/tpch_assorted", "/mydata/BaoForPostgreSQL/tpch_assorted_2"
 
 queries_assorted_1 = get_all_queries_from_directory(query_directory_1)
 queries_assorted_2 = get_all_queries_from_directory(query_directory_2)
@@ -54,7 +54,7 @@ print("Using Bao:", USE_BAO)
 
 print("Executing queries using PG optimizer")
 
-for fp, q in queries_assorted_3:
+for fp, q in queries_assorted_1:
     pg_time = run_query(q, bao_reward=True)
     print("x", "x", time(), fp, pg_time, "PG", flush=True)
 
@@ -65,7 +65,7 @@ for i in range(100):
     if (i+1) % 5 == 0:
         use_assorted_1 = not use_assorted_1
 
-    chosen_queries = queries_assorted_3 if use_assorted_1 else queries_assorted_4
+    chosen_queries = queries_assorted_1 if use_assorted_1 else queries_assorted_2
     
     print("Using assorted queries from:", "query_directory_1" if use_assorted_1 else "query_directory_2")
     if USE_BAO:

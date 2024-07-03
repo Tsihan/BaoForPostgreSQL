@@ -43,7 +43,7 @@ if len(sys.argv) != 3:
     print("Usage: python script.py <query_directory_1> <query_directory_2>", file=sys.stderr)
     sys.exit(1)
 
-query_directory_1, query_directory_2 = sys.argv[1], sys.argv[2]
+query_directory_1, query_directory_2 = "/mydata/BaoForPostgreSQL/imdb_assorted_3","/mydata/BaoForPostgreSQL/imdb_assorted_4"
 
 queries_assorted_3 = get_all_queries_from_directory(query_directory_1)
 queries_assorted_4 = get_all_queries_from_directory(query_directory_2)
