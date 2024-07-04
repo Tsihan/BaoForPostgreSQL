@@ -142,8 +142,10 @@ def start_server(listen_on, port):
 
 
 if __name__ == "__main__":
-    from multiprocessing import Process
+    from multiprocessing import Process, set_start_method
     from config import read_config
+
+    set_start_method('spawn', force=True)
 
     config = read_config()
     port = int(config["Port"])
@@ -151,7 +153,8 @@ if __name__ == "__main__":
 
     print(f"Listening on {listen_on} port {port}")
     
-    server = Process(target=start_server, args=[listen_on, port])
+    server = Process(target=start_server, args=(listen_on, port))
     
     print("Spawning server process...")
     server.start()
+    server.join()
