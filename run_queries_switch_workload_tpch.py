@@ -61,10 +61,6 @@ def get_all_queries_from_directory(directory):
                 queries.append((fp, query))
     return queries
 
-# Ensure two directories are provided as command line arguments
-if len(sys.argv) != 3:
-    print("Usage: python script.py <query_directory_1> <query_directory_2>", file=sys.stderr)
-    sys.exit(1)
 
 query_directory_1, query_directory_2 = "/mydata/BaoForPostgreSQL/tpch_assorted", "/mydata/BaoForPostgreSQL/tpch_assorted_2"
 
