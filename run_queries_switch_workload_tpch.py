@@ -2,9 +2,32 @@ import psycopg2
 import os
 import sys
 from time import time, sleep
-
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 USE_BAO = True
 PG_CONNECTION_STR = "dbname=tpch10load user=qihan host=localhost"
+def send_email(subject, body, to_email):
+    from_email = "xxx"
+    password = "xxx"
+
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        server = smtplib.SMTP('smtp.qq.com', 587)
+        server.starttls()
+        server.login(from_email, password)
+        text = msg.as_string()
+        server.sendmail(from_email, to_email, text)
+        server.quit()
+        print("Email sent successfully")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
 def run_query(sql, bao_select=False, bao_reward=False):
     start = time()
@@ -75,3 +98,5 @@ for i in range(100):
         for fp, q in chosen_queries:
             q_time = run_query(q, bao_reward=USE_BAO, bao_select=USE_BAO)
             print("BAO", time(), fp, q_time, flush=True)
+# 在程序结束时调用
+send_email("Bao Experiment", "The experiment of TPCH XXX finished!", "EMAIL")
