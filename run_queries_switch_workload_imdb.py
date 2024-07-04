@@ -85,7 +85,7 @@ use_assorted_3 = True
 
 for i in range(100):
     print(f"Executing queries using BAO optimizer, iteration {i+1}")
-    if (i+1) % 5 == 0:
+    if i % 5 == 0 and i != 0:
         use_assorted_3 = not use_assorted_3
 
     chosen_queries = queries_assorted_3 if use_assorted_3 else queries_assorted_4

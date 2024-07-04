@@ -82,7 +82,7 @@ use_origin_db = True
 
 for i in range(100):
     print(f"Executing queries using BAO optimizer, iteration {i+1}")
-    if (i+1) % 5 == 0:
+    if i % 5 == 0 and i != 0:
         use_origin_db = not use_origin_db
 
     chosen_connect_string = PG_CONNECTION_STR_origin if use_origin_db else PG_CONNECTION_STR_second
