@@ -77,7 +77,7 @@ print("Using Bao:", USE_BAO)
 print("Executing queries using PG optimizer")
 
 for fp, q in queries_assorted_3:
-    pg_time = run_query(q, bao_reward=True)
+    pg_time = run_query(q, PG_CONNECTION_STR_origin,bao_reward=True)
     print("x", "x", time(), fp, pg_time, "PG", flush=True)
 
 use_assorted_3 = True
