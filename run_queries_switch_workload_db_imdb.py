@@ -31,7 +31,7 @@ def send_email(subject, body, to_email):
     except Exception as e:
         print(f"Failed to send email: {e}")
 
-def run_query(sql, connect_string,bao_select=False, bao_reward=False):
+def run_query(sql, connect_string, bao_select=False, bao_reward=False):
     start = time()
     while True:
         try:
@@ -46,9 +46,8 @@ def run_query(sql, connect_string,bao_select=False, bao_reward=False):
             cur.fetchall()
             conn.close()
             break
-        except:
-            sleep(1)
-            continue
+        except Exception as e:
+            return 512  # Return 512 seconds as the time recorded
     stop = time()
     return stop - start
 
