@@ -123,7 +123,7 @@ void _PG_init(void) {
     "a planner configuration. Higher values give better plans, but higher "
     "optimization times. The standard planner is always considered.",
     &bao_num_arms,
-    5, 1, BAO_MAX_ARMS, 
+    49, 1, BAO_MAX_ARMS, 
     PGC_USERSET,
     0,
     NULL, NULL, NULL);
