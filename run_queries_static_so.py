@@ -6,7 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 USE_BAO = True
-PG_CONNECTION_STR = "dbname=imdbload user=qihan host=localhost port=5438"
+PG_CONNECTION_STR = "dbname=soload user=qihanzha host=localhost port=5438"
 def send_email(subject, body, to_email):
     from_email = "xxx"
     password = "xxx"
@@ -40,7 +40,7 @@ def run_query(sql, bao_select=False, bao_reward=False):
             cur.execute(f"SET enable_bao_rewards TO {bao_reward}")
             # cur.execute("SET bao_num_arms TO 5")
             cur.execute("SET bao_num_arms TO 49")
-            cur.execute("SET statement_timeout TO 10000")
+            cur.execute("SET statement_timeout TO 30000")
             cur.execute(sql)
             cur.fetchall()
             cur.execute('DISCARD ALL;')
@@ -88,4 +88,4 @@ for i in range(50):
             q_time = run_query(q, bao_reward=USE_BAO, bao_select=USE_BAO)
             print("BAO", time(), fp, q_time, flush=True)
 # 在程序结束时调用
-send_email("Bao Experiment", "The experiment of IMDB XXX finished!", "EMAIL")
+send_email("Bao Experiment", "The experiment of SO XXX finished!", "EMAIL")
