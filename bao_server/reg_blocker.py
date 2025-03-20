@@ -26,8 +26,8 @@ class BaoException(Exception):
 # For example, "hashjoin" -> "enable_hashjoin", etc.
 # Order them exactly as you want them indexed (0 to 48).
 _ARMS = [
-    #  0
-    ["hashjoin", "indexonlyscan"],
+    #  0 (all six on)
+    ["hashjoin", "indexonlyscan", "indexscan", "mergejoin", "nestloop", "seqscan"],
     #  1
     ["hashjoin", "indexonlyscan", "indexscan"],
     #  2
@@ -122,8 +122,8 @@ _ARMS = [
     ["mergejoin", "seqscan"],
     # 47
     ["nestloop", "seqscan"],
-    # 48 (all six on)
-    ["hashjoin", "indexonlyscan", "indexscan", "mergejoin", "nestloop", "seqscan"],
+    # 48
+    ["hashjoin", "indexonlyscan"], 
 ]
 
 def _arm_idx_to_hints(arm_idx):

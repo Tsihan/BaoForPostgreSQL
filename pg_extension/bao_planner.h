@@ -248,11 +248,16 @@ set_arm_options(int arm)
      */
     switch (arm)
     {
-        /*  0: ["hashjoin", "indexonlyscan"] */
+        /* 0: ["hashjoin", "indexonlyscan", "indexscan", "mergejoin", "nestloop", "seqscan"] */
         case 0:
             enable_hashjoin = true;
             enable_indexonlyscan = true;
+            enable_indexscan = true;
+            enable_mergejoin = true;
+            enable_nestloop = true;
+            enable_seqscan = true;
             break;
+        
 
         /*  1: ["hashjoin", "indexonlyscan", "indexscan"] */
         case 1:
@@ -602,15 +607,13 @@ set_arm_options(int arm)
             enable_seqscan = true;
             break;
 
-        /* 48: ["hashjoin", "indexonlyscan", "indexscan", "mergejoin", "nestloop", "seqscan"] */
+        /*  48: ["hashjoin", "indexonlyscan"] */
         case 48:
             enable_hashjoin = true;
             enable_indexonlyscan = true;
-            enable_indexscan = true;
-            enable_mergejoin = true;
-            enable_nestloop = true;
-            enable_seqscan = true;
             break;
+
+
 
         default:
             /* The Python code raises an exception; here we do an elog(ERROR). */
