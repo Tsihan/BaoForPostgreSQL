@@ -52,7 +52,7 @@ static char* buffer_state() {
     // and relfilenode we read from the buffer header may be inconsistent.
     //buf_state = LockBufHdr(bufHdr);
 
-    tablespace = bufHdr->tag.relNumber;
+    tablespace = bufHdr->tag.spcOid;
     relfilenode = bufHdr->tag.relNumber;
 
     // Ensure both are valid.
