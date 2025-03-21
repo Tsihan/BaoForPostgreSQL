@@ -36,7 +36,7 @@ void _PG_fini(void);
 //    for the query back to the Bao server.
 // 4) The bao_ExplainOneQuery hook adds the Bao suggested hint and the reward
 //    prediction to the EXPLAIN output of a query.
-static PlannedStmt* bao_planner(Query *parse,
+static PlannedStmt* bao_planner(Query *parse, const char *query_string,
                                 int cursorOptions, ParamListInfo boundParams);
 static void bao_ExecutorStart(QueryDesc *queryDesc, int eflags);
 static void bao_ExecutorEnd(QueryDesc *queryDesc);
@@ -123,7 +123,7 @@ void _PG_init(void) {
     "a planner configuration. Higher values give better plans, but higher "
     "optimization times. The standard planner is always considered.",
     &bao_num_arms,
-    49, 1, BAO_MAX_ARMS, 
+    5, 1, BAO_MAX_ARMS, 
     PGC_USERSET,
     0,
     NULL, NULL, NULL);
@@ -146,6 +146,7 @@ void _PG_fini(void) {
 }
 
 static PlannedStmt* bao_planner(Query *parse,
+                                const char *query_string,
                                 int cursorOptions,
                                 ParamListInfo boundParams) {
   // Bao planner. This is where we select a query plan.
@@ -163,7 +164,7 @@ static PlannedStmt* bao_planner(Query *parse,
 
   if (prev_planner_hook) {
     elog(WARNING, "Skipping Bao hook, another planner hook is installed.");
-    return prev_planner_hook(parse, cursorOptions,
+    return prev_planner_hook(parse, query_string, cursorOptions,
                              boundParams);
   }
 
@@ -172,7 +173,7 @@ static PlannedStmt* bao_planner(Query *parse,
   // enable_bao_selection here, because if enable_bao is on, we still need
   // to attach a query plan to the query to record the reward later.
   if (!should_bao_optimize(parse) || !enable_bao) {
-    return standard_planner(parse, cursorOptions,
+    return standard_planner(parse, query_string,cursorOptions,
                             boundParams);
   }
 
@@ -180,11 +181,11 @@ static PlannedStmt* bao_planner(Query *parse,
   t_start = clock();
 
   // Call Bao query planning routine (in `bao_planner.h`).
-  plan = plan_query(parse, cursorOptions, boundParams);
+  plan = plan_query(parse, query_string, cursorOptions, boundParams);
 
   if (plan == NULL) {
     // something went wrong, default to the PG plan.
-    return standard_planner(parse, cursorOptions, boundParams);
+    return standard_planner(parse, query_string,cursorOptions, boundParams);
   }
 
   // We need some way to associate this query with the BaoQueryInfo data.
@@ -223,7 +224,8 @@ static void bao_ExecutorStart(QueryDesc *queryDesc, int eflags) {
       MemoryContext oldcxt;
       
       oldcxt = MemoryContextSwitchTo(queryDesc->estate->es_query_cxt);
-      queryDesc->totaltime = InstrAlloc(1, INSTRUMENT_TIMER);
+      // false 0
+      queryDesc->totaltime = InstrAlloc(1, INSTRUMENT_TIMER, false);
       MemoryContextSwitchTo(oldcxt);
     }
   }
@@ -283,7 +285,7 @@ static void bao_ExecutorEnd(QueryDesc *queryDesc) {
 }
 
 static void bao_ExplainOneQuery(Query* query, int cursorOptions, IntoClause* into,
-                                ExplainState* es, const char* queryString,
+                                ExplainState* es, const char* query_string,
                                 ParamListInfo params, QueryEnvironment* queryEnv) {
   
   PlannedStmt* plan;
@@ -307,7 +309,7 @@ static void bao_ExplainOneQuery(Query* query, int cursorOptions, IntoClause* int
   
   if (prev_ExplainOneQuery) {
     prev_ExplainOneQuery(query, cursorOptions, into, es,
-                         queryString, params, queryEnv);
+      query_string, params, queryEnv);
   }
 
   // There should really be a standard_ExplainOneQuery, but there
@@ -315,15 +317,19 @@ static void bao_ExplainOneQuery(Query* query, int cursorOptions, IntoClause* int
   // here as a consequence.
   
   INSTR_TIME_SET_CURRENT(plan_start);
-  plan = (planner_hook ? planner_hook(query, cursorOptions, params)
-          : standard_planner(query, cursorOptions, params));
+  plan = (planner_hook ? planner_hook(query, query_string, cursorOptions, params)
+          : standard_planner(query, query_string, cursorOptions, params));
   INSTR_TIME_SET_CURRENT(plan_duration);
   INSTR_TIME_SUBTRACT(plan_duration, plan_start);
     
   if (!enable_bao) {
     // Bao is disabled, do the deault explain thing.
-    ExplainOnePlan(plan, into, es, queryString,
-                   params, queryEnv, &plan_duration);
+    BufferUsage bufusage_local;
+    MemSet(&bufusage_local, 0, sizeof(BufferUsage));
+    
+
+    ExplainOnePlan(plan, into, es, query_string,
+                   params, queryEnv, &plan_duration,&bufusage_local);
     return;
   }
 
@@ -378,7 +384,7 @@ static void bao_ExplainOneQuery(Query* query, int cursorOptions, IntoClause* int
   // since EXPLAIN should still be fast.
   old_selection_val = enable_bao_selection;
   enable_bao_selection = true;
-  bao_plan = plan_query(query, cursorOptions, params);
+  bao_plan = plan_query(query, query_string, cursorOptions, params);
   enable_bao_selection = old_selection_val;
   
   if (!bao_plan) {
@@ -396,6 +402,8 @@ static void bao_ExplainOneQuery(Query* query, int cursorOptions, IntoClause* int
   ExplainCloseGroup("BaoProps", NULL, true, es);
   
   // Do the deault explain thing.
-  ExplainOnePlan(plan, into, es, queryString,
-                 params, queryEnv, &plan_duration);
+  BufferUsage bufusage_local;
+  MemSet(&bufusage_local, 0, sizeof(BufferUsage));
+  ExplainOnePlan(plan, into, es, query_string,
+                 params, queryEnv, &plan_duration,&bufusage_local);
 }

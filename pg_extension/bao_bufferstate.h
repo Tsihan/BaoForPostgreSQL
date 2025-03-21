@@ -10,8 +10,7 @@
 #include "storage/bufmgr.h"
 #include "storage/buf_internals.h"
 #include "utils/lsyscache.h"
-#include "utils/relfilenodemap.h"
-
+#include "utils/relfilenumbermap.h"
 #include "bao_util.h"
 
 // Functions to create a JSON representation of the current PostgreSQL buffer state.
@@ -53,15 +52,15 @@ static char* buffer_state() {
     // and relfilenode we read from the buffer header may be inconsistent.
     //buf_state = LockBufHdr(bufHdr);
 
-    tablespace = bufHdr->tag.rnode.spcNode;
-    relfilenode = bufHdr->tag.rnode.relNode;
+    tablespace = bufHdr->tag.relNumber;
+    relfilenode = bufHdr->tag.relNumber;
 
     // Ensure both are valid.
     if (tablespace == InvalidOid || relfilenode == InvalidOid)
       continue;
 
     // Get the relation ID attached to this file node.
-    relid = RelidByRelfilenode(tablespace, relfilenode);
+    relid = RelidByRelfilenumber(tablespace, relfilenode);
     if (relid == InvalidOid)
       continue;
 
