@@ -624,6 +624,28 @@ set_arm_options(int arm)
     }
 }
 
+// Get a query plan for a particular arm.
+static PlannedStmt* plan_arm(int arm, Query* parse,
+  int cursorOptions, ParamListInfo boundParams) {
+
+PlannedStmt* plan = NULL;
+Query* query_copy = copyObject(parse); // create a copy of the query plan
+
+if (arm == -1) {
+// Use whatever the user has set as the current configuration.
+plan = standard_planner(query_copy, cursorOptions, boundParams);
+return plan;
+}
+
+// Preserving the user's options, set the config to match the arm index
+// and invoke the PG planner.
+save_arm_options({
+set_arm_options(arm);
+plan = standard_planner(query_copy, cursorOptions, boundParams);
+});
+
+return plan;
+}
 
 // A struct to represent a query plan before we transform it into JSON.
 typedef struct BaoPlanNode {
